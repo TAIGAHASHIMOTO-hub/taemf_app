@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id(); // ER図の「id 主キー」
-            $table->string('name'); // name列
-            $table->string('email')->unique(); // メール
-            $table->string('password'); // パスワード
-            $table->string('gender'); // 性別
-            $table->string('phone'); // 電話番号
-            $table->string('birthdate'); // 誕生日
-            $table->string('is_admin'); // 管理者か判別
-            $table->timestamps(); // created_at と updated_at を自動で追加
+            $table->id(); //ユーザid
+            $table->string('name'); //ユーザーネーム
+            $table->string('email')->unique();  //Eメール
+            $table->string('password');  //パスワード
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();  //性別
+            $table->string('phone')->nullable();  //電話番号
+            $table->date('birthdate')->nullable();  //誕生日
+            $table->boolean('is_admin')->default(false);  //管理者化どうか
+            $table->rememberToken();  //ログインを保持
+            $table->timestamps();
         });
     }
 
