@@ -10,6 +10,11 @@ class DressImage extends Model
     use HasFactory;
 
     /**
+     * テーブル名を明示的に指定
+     */
+    protected $table = 'dresses_images';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

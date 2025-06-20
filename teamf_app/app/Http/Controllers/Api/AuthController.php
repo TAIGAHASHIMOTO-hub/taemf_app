@@ -65,21 +65,22 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // 資格情報チェック
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'メールアドレスまたはパスワードが正しくありません'
             ], 401);
         }
 
-        $user = Auth::user();
-
-        // Laravel Sanctumを使用する場合のトークン生成
-        // $token = $user->createToken('auth-token')->plainTextToken;
+        // トークン生成
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'ログインに成功しました',
-            'user' => $user->load('addresses'),
-            // 'token' => $token // Sanctum使用時
+            'user' => $user,
+            'token' => $token
         ]);
     }
 
@@ -88,10 +89,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Laravel Sanctumを使用する場合
-        // $request->user()->currentAccessToken()->delete();
-
-        Auth::logout();
+        // 現在のトークンを削除
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'ログアウトしました'
@@ -137,10 +136,12 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        $userId = $request->user()->id;
-        $user = User::with('addresses')->findOrFail($userId);
+        $user = $request->user();
 
-        return response()->json($user);
+        return response()->json([
+            'user' => $user,
+            'addresses' => $user->addresses
+        ]);
     }
 
     /**
