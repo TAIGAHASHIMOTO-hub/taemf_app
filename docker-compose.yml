@@ -1,7 +1,32 @@
 services:
+  # Laravel Backend (既存)
   app:
     build: ./
+    container_name: teamf_backend
     volumes:
       - .:/workdir
     ports:
       - 8000:8000
+    networks:
+      - teamf_network
+
+  # Next.js Frontend (新規追加)
+  frontend:
+    image: node:18-alpine
+    container_name: teamf_frontend
+    working_dir: /app
+    volumes:
+      - ./teamf_frontend:/app
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    networks:
+      - teamf_network
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - app
+
+networks:
+  teamf_network:
+    driver: bridge
